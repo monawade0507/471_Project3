@@ -18,7 +18,7 @@ web_server : web_server.o web_server_help.o log.o
 web_server.o : web_server.cc web_server.h
 	${CXX} -c ${CXXFLAGS} -o $@ $<
 
-web_server_help.o : web_server_help.cc web_server_help.h
+web_server_help.o : web_server_help.cc web_server_help.h log.cc log.h
 	${CXX} -c ${CXXFLAGS} -o $@ $<
 
 log.o : log.cc log.h

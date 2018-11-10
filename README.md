@@ -1,8 +1,12 @@
 # 471_Project3
 Develop a Web Server capable of processing HTTP request messages
 
+Notes for Code Release:
 
-Functional Requirements
+I have included the same html and jpeg files that are in included in: ~promig3/pub/sampleWebFiles
+
+--------------------------------------------------------------------------------
+Functional Requirements:
 
 At a minimum, your submission must do the following to receive full credit.
 Basic Requirements:
@@ -27,3 +31,10 @@ Respond to invalid requests with the appropriate error.
 
 After responding to a request your code should return to the main loop and wait for the next request.
 1. You can terminate your program with CTRL-C. It is best practice to catch the CTRL-C (i.e., SIGINT) and close your open socket before exiting. If you don’t close the socket the port number will remain open for a brief period, which makes developing the code a hassle.
+
+
+Testing the code:
+In a web browser:
+    "http://isengard.mines.edu:XXXX/file1.html"
+    "http://isengard.mines.edu:XXXX/file2.html"
+    "http://isengard.mines.edu:XXXX/badname.html"

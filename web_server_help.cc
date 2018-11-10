@@ -2,7 +2,7 @@
 
 
 void WebServer::createSocket() {
-  if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+  if ((sock = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
     logger->printLog("Error opening socket");
     exit(-1);
   }
@@ -66,6 +66,78 @@ void WebServer::listenSocket () {
    }
    else {
      logger->printLog("accept() successful");
-     return 0;
+     return processConnection(lst);
    }
+ }
+
+ int WebServer::processConnection (int connection) {
+   logger->printLog("Connection made");
+   std::memset(buffer, 0, sizeof(buffer));
+   n = 0;
+   if ((n = read(connection, buffer, 255)) < 0) {
+     logger->printLog("Error reading data");
+     exit(-1);
+     return -1;
+   }
+   else {
+     logger->printLog("read() successful");
+     std::string fileName = ""; // file requested
+     for (int i = 0; i < 256; i++) {
+       //std::cout << buffer[i];
+       // checking for html files
+       if (buffer[i] == 'f' && buffer[i+1] == 'i' && buffer[i+2] == 'l' && buffer[i+3] == 'e') {
+         for (int j = 0; j < 10; j++) {
+           fileName += buffer[i + j];
+         }
+       }
+       // checking for jpeg files
+       if (buffer[i] == 'i' && buffer[i+1] == 'm' && buffer[i+2] == 'a' && buffer[i+3] == 'g' && buffer[i+4] == 'e') {
+         for (int j = 0; j < 11; j++) {
+           fileName += buffer[i + j];
+         }
+       }
+     }
+     // if invalid fileName was typed
+     if (fileName == "") {
+       for (int i = 0; i < 256; i++) {
+         if (buffer[i] == 'G' && buffer[i + 1] == 'E' && buffer[i + 2] == 'T') {
+           std::string str =
+              "HTTP/1.1 404 Not Found\n"
+              "Content-type: text/html\n"
+              "Content-Length: 15\n"
+              "Accept-Ranges: bytes\n"
+              "Connection: close\n"
+              "\n"
+              "File Not Found\n";
+              strcpy(returnBuffer, str.c_str());
+              std::cout << strlen(returnBuffer) << std::endl;
+              n = send(connection, returnBuffer, strlen(returnBuffer), 0);
+              close(connection);
+              return 404;          // valid GET request, wrong file name
+            }
+            else {
+              std::string str =
+              "HTTP/1.1 400 Bad Response\n"
+              "Content-type: text/html\n"
+              "Content-Length: 15\n"
+              "Accept-Ranges: bytes\n"
+              "Connection: close\n"
+              "\n"
+              "Invalid Request\n";
+              strcpy(returnBuffer, str.c_str());
+              std::cout << strlen(returnBuffer) << std::endl;
+              n = send(connection, returnBuffer, strlen(returnBuffer), 0);
+              close(connection);
+              return 400;          // not valid GET request, wrong file name
+            }
+          }
+        }
+        else {
+          // fileName that starts with "file" or "image" was given
+        }
+
+
+     std::cout << fileName << std::endl;
+   }
+   return 0;
  }

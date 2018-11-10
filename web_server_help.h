@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <cstring>
+#include <bits/stdc++.h> 
 #include "log.h"
 
 #define ENDL " (" << __FILE__ << ":" << __LINE__ << ")"
@@ -24,6 +25,7 @@ public:
   void bindSocket();
   void listenSocket();
   int waitingConnection();
+  int processConnection(int connection);
   Log* logger = new Log();
 private:
   int sock = -1;
@@ -38,6 +40,7 @@ private:
   struct sockaddr_in servAddr;
   struct sockaddr_in clientAddr;
   char buffer[256];
+  char returnBuffer[256];
   int portNum = -1;
   int n = 0;
 

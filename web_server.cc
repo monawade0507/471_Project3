@@ -27,6 +27,14 @@ int main(int argc, char *argv[])
   web.listenSocket();
   // Wait for the connection with the accept call
   int returnCode = web.waitingConnection();
+  // if returnCode == 404 -> valid GET; invalid file fileName
+  if (returnCode == 404) {
+    std::cout << "Error 404" << std::endl;
+  }
+  // if returnCode == 400 -> invalid GET
+  if (returnCode == 400) {
+    std::cout << "Error 400" << std::endl;
+  }
 
   return 0;
 }

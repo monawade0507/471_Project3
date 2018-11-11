@@ -1,12 +1,20 @@
 # 471_Project3
 Develop a Web Server capable of processing HTTP request messages
 
-Notes for Code Release:
-
+## Notes for Code Release:
 I have included the same html and jpeg files that are in included in: ~promig3/pub/sampleWebFiles
 
+### How to run
+ $>./web_server -v  (-v is optional)
+    When the executable is running, it will inform you of which port to use.
+    Example: Port Number: 6028
+    This will be report if you have the verbose option or not.
+    Everytime an HTTP response is sent, a new port will be reported to use.
+    To exit the program, use CTRL-C.  
+
+
 --------------------------------------------------------------------------------
-Functional Requirements:
+## Functional Requirements:
 
 At a minimum, your submission must do the following to receive full credit.
 Basic Requirements:

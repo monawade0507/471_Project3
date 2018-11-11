@@ -97,6 +97,7 @@ void WebServer::listenSocket () {
          }
        }
      }
+     std::cout << "Recieved file name: " << fileName << std::endl;
      // if invalid fileName was typed
      if (fileName == "") {
        for (int i = 0; i < 256; i++) {
@@ -109,6 +110,7 @@ void WebServer::listenSocket () {
               "Connection: close\n"
               "\n"
               "File Not Found\n";
+              std::memset(returnBuffer, 0, sizeof(returnBuffer));
               strcpy(returnBuffer, str.c_str());
               std::cout << strlen(returnBuffer) << std::endl;
               n = send(connection, returnBuffer, strlen(returnBuffer), 0);
@@ -133,7 +135,138 @@ void WebServer::listenSocket () {
           }
         }
         else {
+          std::cout << "Trying to figure out file extension" << std::endl;
           // fileName that starts with "file" or "image" was given
+          if (fileName.find("jpg") != std::string::npos) {
+            //process jpeg
+            std::cout << "processing jpg file" << std::endl;
+            FILE *file;
+            char *reply;
+            int fileSize = 0;
+            // Open file
+            const char *temp = fileName.c_str();
+            file = fopen(temp, "w");
+            if (!file)
+            {
+              std::string str =
+                 "HTTP/1.1 404 Not Found\n"
+                 "Content-type: text/html\n"
+                 "Content-Length: 15\n"
+                 "\n"
+                 "File Not Found\n";
+                 std::memset(returnBuffer, 0, sizeof(returnBuffer));
+                 strcpy(returnBuffer, str.c_str());
+                 std::cout << strlen(returnBuffer) << std::endl;
+                 n = send(connection, returnBuffer, strlen(returnBuffer), 0);
+                 close(connection);
+                 return 404;          // valid GET request, wrong file name
+            }
+
+            // get file Length
+            fseek(file, 0, SEEK_END);
+            fileSize = ftell(file);
+            fseek(file, 0, SEEK_SET);
+
+            //Allocate memory
+            char* tempBuffer = (char *)malloc(fileSize + 1);
+            if (!tempBuffer)
+            {
+                fprintf(stderr, "Memory error!");
+                fclose(file);
+                return -1;
+            }
+
+            //Read file contents into buffer
+            fread(tempBuffer, fileSize, 1, file);
+            fclose(file);
+
+            std::string str =
+            "HTTP/1.1 200 OK\n"
+            "Content-Type: image/jpg\n";
+            str = str + "Content-Length: " + std::to_string(fileSize) + "\n";
+
+            std::memset(returnBuffer, 0, sizeof(returnBuffer));
+            strcpy(returnBuffer, str.c_str());
+            strcat(returnBuffer + strlen(str.c_str()), tempBuffer);
+            strcat(returnBuffer + strlen(str.c_str()) + strlen(tempBuffer), "\n");
+
+            n = write(connection, returnBuffer, sizeof(returnBuffer));
+            close(connection);
+            return 0;
+
+          }
+          else if (fileName.find("html") != std::string::npos) {
+            //process html
+            std::cout << "processed html file" << std::endl;
+            FILE *file;
+            char *reply;
+            int fileSize = 0;
+            // Open file
+            const char *temp = fileName.c_str();
+            file = fopen (temp, "r");
+
+            if (!file)
+            {
+              std::string str =
+                 "HTTP/1.1 404 Not Found\n"
+                 "Content-type: text/html\n"
+                 "Content-Length: 15\n"
+                 "\n"
+                 "File Not Found\n";
+              std::memset(returnBuffer, 0, sizeof(returnBuffer));
+              strcpy(returnBuffer, str.c_str());
+              std::cout << strlen(returnBuffer) << std::endl;
+              n = send(connection, returnBuffer, strlen(returnBuffer), 0);
+              close(connection);
+              return 404;          // valid GET request, wrong file name
+            }
+
+            // get file Length
+            fseek(file, 0, SEEK_END);
+            fileSize = ftell(file);
+            fseek(file, 0, SEEK_SET);
+
+            //Allocate memory
+            char* tempBuffer = (char *)malloc(fileSize + 1);
+            if (!tempBuffer)
+            {
+                fprintf(stderr, "Memory error!");
+                fclose(file);
+                return -1;
+            }
+
+            //Read file contents into buffer
+            fread(tempBuffer, fileSize, 1, file);
+            fclose(file);
+
+            std::string str =
+            "HTTP/1.1 200 OK\n"
+            "Content-Type: text/html\n";
+            str = str + "Content-Length: " + std::to_string(fileSize) + "\n";
+
+            std::memset(returnBuffer, 0, sizeof(returnBuffer));
+            strcpy(returnBuffer, str.c_str());
+            strcat(returnBuffer + strlen(str.c_str()), tempBuffer);
+            strcat(returnBuffer + strlen(str.c_str()) + strlen(tempBuffer), "\n");
+
+            n = write(connection, returnBuffer, sizeof(returnBuffer));
+            close(connection);
+            return 0;
+          }
+          else {
+            // file not found
+            std::string str =
+               "HTTP/1.1 404 Not Found\n"
+               "Content-type: text/html\n"
+               "Content-Length: 15\n"
+               "\n"
+               "File Not Found\n";
+               strcpy(returnBuffer, str.c_str());
+               std::cout << strlen(returnBuffer) << std::endl;
+               n = send(connection, returnBuffer, strlen(returnBuffer), 0);
+               close(connection);
+               return 404;          // valid GET request, wrong file name
+          }
         }
 
 

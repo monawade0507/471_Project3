@@ -12,7 +12,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <cstring>
-#include <bits/stdc++.h> 
+#include <bits/stdc++.h>
 #include "log.h"
 
 #define ENDL " (" << __FILE__ << ":" << __LINE__ << ")"
@@ -40,7 +40,7 @@ private:
   struct sockaddr_in servAddr;
   struct sockaddr_in clientAddr;
   char buffer[256];
-  char returnBuffer[256];
+  char returnBuffer[7000];
   int portNum = -1;
   int n = 0;
 

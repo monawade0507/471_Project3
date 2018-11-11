@@ -1,5 +1,13 @@
 #include "web_server.h"
 
+static volatile int keepRunning = 1;
+
+void intHandler (int num) {
+     signal(num, SIG_IGN);
+     exit(0);
+     keepRunning = 0;
+}
+
 int main(int argc, char *argv[])
 {
   WebServer web;
@@ -20,21 +28,17 @@ int main(int argc, char *argv[])
   	}
   }
 
+  signal(SIGINT, intHandler);
   // Web Server Operations
-  web.createSocket();
-  web.setupAddress();
-  web.bindSocket();
-  web.listenSocket();
-  // Wait for the connection with the accept call
-  int returnCode = web.waitingConnection();
-  // if returnCode == 404 -> valid GET; invalid file fileName
-  if (returnCode == 404) {
-    std::cout << "Error 404" << std::endl;
-  }
-  // if returnCode == 400 -> invalid GET
-  if (returnCode == 400) {
-    std::cout << "Error 400" << std::endl;
-  }
+  while(keepRunning) {
+    web.createSocket();
+    web.setupAddress();
+    // inside the loop for repeat function
+    web.bindSocket();
+    web.listenSocket();
+    // Wait for the connection with the accept call
+    web.waitingConnection();
+ }
 
   return 0;
 }

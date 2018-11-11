@@ -24,7 +24,7 @@ public:
   void setupAddress();
   void bindSocket();
   void listenSocket();
-  int waitingConnection();
+  void waitingConnection();
   int processConnection(int connection);
   Log* logger = new Log();
 private:

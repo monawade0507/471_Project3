@@ -55,7 +55,7 @@ void WebServer::listenSocket () {
   }
 }
 
- int WebServer::waitingConnection () {
+ void WebServer::waitingConnection () {
    logger->printLog("Attempting accept()");
    socklen_t sizeClient = sizeof(clientAddr);
    lst = accept(sock, (struct sockaddr *) NULL, NULL);
@@ -66,7 +66,7 @@ void WebServer::listenSocket () {
    }
    else {
      logger->printLog("accept() successful");
-     return processConnection(lst);
+     int result = processConnection(lst);
    }
  }
 

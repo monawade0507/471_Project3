@@ -92,7 +92,7 @@ void WebServer::listenSocket () {
        }
        // checking for jpeg files
        if (buffer[i] == 'i' && buffer[i+1] == 'm' && buffer[i+2] == 'a' && buffer[i+3] == 'g' && buffer[i+4] == 'e') {
-         for (int j = 0; j < 11; j++) {
+         for (int j = 0; j < 10; j++) {
            fileName += buffer[i + j];
          }
        }
@@ -145,7 +145,8 @@ void WebServer::listenSocket () {
             int fileSize = 0;
             // Open file
             const char *temp = fileName.c_str();
-            file = fopen(temp, "w");
+            file = fopen(temp, "rb");
+            logger->printLog("Opening JPG file");
             if (!file)
             {
               std::string str =
@@ -177,22 +178,39 @@ void WebServer::listenSocket () {
             }
 
             //Read file contents into buffer
-            fread(tempBuffer, fileSize, 1, file);
+            int resultSize = fread(tempBuffer, fileSize, 1, file);
             fclose(file);
 
             std::string str =
             "HTTP/1.1 200 OK\n"
-            "Content-Type: image/jpg\n";
-            str = str + "Content-Length: " + std::to_string(fileSize) + "\n";
+            "Content-Type: image/jpeg\n";
+            str = str + "Content-Length: " + std::to_string(fileSize);
+            logger->printLog(str);
 
-            std::memset(returnBuffer, 0, sizeof(returnBuffer));
-            strcpy(returnBuffer, str.c_str());
-            strcat(returnBuffer + strlen(str.c_str()), tempBuffer);
-            strcat(returnBuffer + strlen(str.c_str()) + strlen(tempBuffer), "\n");
+            char test[strlen(str.c_str()) + fileSize + 1];
+            std::memset(test, 0, strlen(str.c_str()) + fileSize);
 
-            n = write(connection, returnBuffer, sizeof(returnBuffer));
+            strcpy(test, str.c_str());
+            for (int i = 0; i < fileSize; i++){
+              test[(strlen(str.c_str())) + i] = tempBuffer[i];
+            }
+            strcat(test + strlen(str.c_str()) + fileSize, "\n");
+
+            logger->printLog("Buffer size: " + std::to_string(sizeof(test)));
+
+            while (n > 0) {
+              n = send(connection, test, sizeof(test), 0);
+              std::cout << std::to_string(n) << std::endl;
+              if (n < 0) {
+                std::string errorString = strerror(errno);
+                logger->printLog("Error with processConnection: " + errorString);
+                exit(-1);
+              }
+            }
+
+            logger->printLog("Done");
             close(connection);
-            return 0;
+            return connection;
 
           }
           else if (fileName.find("html") != std::string::npos) {

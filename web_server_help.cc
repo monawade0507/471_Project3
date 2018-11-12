@@ -184,7 +184,7 @@ void WebServer::listenSocket () {
             std::string str =
             "HTTP/1.1 200 OK\n"
             "Content-Type: image/jpeg\n";
-            str = str + "Content-Length: " + std::to_string(fileSize);
+            str = str + "Content-Length: " + std::to_string(fileSize) + "\n\n";
             logger->printLog(str);
 
             char test[strlen(str.c_str()) + fileSize + 1];
@@ -200,17 +200,18 @@ void WebServer::listenSocket () {
 
             while (n > 0) {
               n = send(connection, test, sizeof(test), 0);
-              std::cout << std::to_string(n) << std::endl;
+              /*
               if (n < 0) {
                 std::string errorString = strerror(errno);
                 logger->printLog("Error with processConnection: " + errorString);
                 exit(-1);
               }
+              */
             }
 
             logger->printLog("Done");
             close(connection);
-            return connection;
+            return 0;
 
           }
           else if (fileName.find("html") != std::string::npos) {
